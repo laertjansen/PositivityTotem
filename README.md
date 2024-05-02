@@ -25,3 +25,8 @@ Here are some screenshots of the process and the final box that I created in ord
 
 ![IMG_8138](https://github.com/laertjansen/PositivityTotem/assets/34003432/fc37fd2b-8f1d-4643-a407-b1e5fea0626e)
 
+![unnamed (6)](https://github.com/laertjansen/PositivityTotem/assets/34003432/7c3ac1ed-b42d-4e74-87ac-1acac2e950d5)
+
+![IMG_7596](https://github.com/laertjansen/PositivityTotem/assets/34003432/f68ac818-1bca-47be-abc1-259bbec90903)
+
+![IMG_8179](https://github.com/laertjansen/PositivityTotem/assets/34003432/831619f7-c259-4bb6-bbef-3db8d7f2fb1a)
