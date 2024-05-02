@@ -1,0 +1,202 @@
+What you need:
+- Arduino Uno
+- LCD 16x2
+- Servo
+- LED Matrix 8x8
+- PIR sensor
+- Cardboard
+- Jumping wires
+
+
+.............................................................................................................................................................................................................................................................
+
+
+Arduino Code
+
+// Create shapes here: https://www.riyas.org/2013/12/online-led-matrix-font-generator-with.html
+
+// include the library code:
+#include <LiquidCrystal.h>
+#include "LedControl.h"
+#include <Servo.h>  // servo library
+
+//Servo
+Servo servo1;  // servo control object
+
+// LCD
+const int rs = 7, en = 8, d4 = 9, d5 = 10, d6 = 11, d7 = 12;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// Define array of words
+String words[] = { "YOU GOT THIS.", "YOU'RE LOVED.", "YOU CAN DO IT.", "YOU'RE SPECIAL.", "YOU'RE BRAVE." };
+String prevWord = "";     // Store previously displayed word
+String currentWord = "";  // Store currently displayed word
+
+// Matrix
+LedControl lc = LedControl(4, 5, 6, 1);
+
+//LCD heart
+byte Heart[8] = {
+  0b00000,
+  0b01010,
+  0b11111,
+  0b11111,
+  0b01110,
+  0b00100,
+  0b00000,
+  0b00000
+};
+
+//byte bigHeart[] = { B00000000, B01100110, B11111111, B11111111, B01111110, B00111100, B00011000, B00000000 }; // This is the upright heart
+
+byte bigHeart[] = {B00001100, B00011110, B00111110, B01111100, B01111100, B00111110, B00011110, B00001100}; // this one is tilted so I could fit the matrix in the box
+
+byte smallHeart[] = { B00000000, B00100100, B01111110, B01111110, B01111110, B00111100, B00011000, B00000000 };
+
+
+int shortdelayTime = 100;
+int longdelayTime = 400;
+
+float minBrightness = .02;
+float maxBrightness = 10;
+
+// Sonic Sensor Variables
+int trig = 3;
+int echo = 2;
+
+//PIN Sensor
+int pirPin = 3;
+int motionStatus = 0;
+int pirState = LOW;
+
+int initialAngle = 90;
+int openAngle = 0;
+
+
+void setup() {
+  Serial.begin(9600);
+
+  // LCD starts
+  lcd.begin(16, 2);
+  lcd.clear();
+
+  lc.shutdown(0, false);
+  lc.setIntensity(0, 8);
+  lc.clearDisplay(0);
+
+  pinMode(pirPin, INPUT);
+
+  //pinMode(trig, OUTPUT);
+  //pinMode(echo, INPUT);
+
+  lcd.createChar(0, Heart);
+
+  servo1.attach(2);
+  servo1.write(initialAngle);
+
+  delay(1000);
+}
+
+void heartBeat() {
+  byte intensities[] = { maxBrightness, minBrightness };
+
+  for (int k = 0; k < 2; k++) {
+    for (int j = 0; j < 2; j++) {
+      for (int i = 0; i <= 7; i++) {
+        lc.setRow(0, i, bigHeart[i]);
+        lc.setIntensity(0, intensities[j]);
+      }
+      delay(shortdelayTime);
+    }
+  }
+
+  delay(longdelayTime);
+}
+
+void stopBeat() {
+
+  for (int i = 0; i <= 7; i++) {
+    lc.setRow(0, i, bigHeart[i]);
+    lc.setIntensity(0, minBrightness);
+  }
+}
+
+void loop() {
+
+  motionStatus = digitalRead(pirPin);
+
+  /*long duration, distance;
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  duration = pulseIn(echo, HIGH);
+  distance = (duration / 2) / 29.1; // Calculate distance in cm
+
+  if (distance < 40) {
+    if (currentWord == "") {  // Print random word on LCD if no word is currently displayed
+      currentWord = getRandomWord();
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(currentWord);
+    }
+    heartBeat();  // Draw animated heart on matrix LED
+  } else {
+    
+    stopBeat(); // Idle heart anim starts
+    lcd.clear(); // Clear LCD
+    currentWord = ""; // Reset current word
+  }*/
+
+  if (motionStatus == HIGH) {
+    if (pirState == LOW) {
+      Serial.println("Motion Detected");
+      servo1.write(openAngle); // Rotating Servo
+      if (currentWord == "") {  // Print random word on LCD if no word is currently displayed
+        currentWord = getRandomWord();
+        lcd.clear();
+
+        lcd.setCursor(0, 1);
+        lcd.print(currentWord);
+
+        for (int i = 0; i < 16; i++) {
+          lcd.setCursor(i, 0);
+          lcd.write(byte(0));
+        }
+      }
+
+      pirState = HIGH;
+    }
+    heartBeat();  // Draw animated heart on matrix LED
+  } else {
+    if (pirState == HIGH) {
+      servo1.write(initialAngle); // Rotating Servo
+      Serial.println("No Motion");
+
+      stopBeat();        // Idle heart anim starts
+      lcd.clear();       // Clear LCD
+      currentWord = "";  // Reset current word
+    }
+    pirState = LOW;
+  }
+
+
+  delay(500);
+}
+
+String getRandomWord() {
+  // Generate random index from 0 to 4
+  int randomIndex = random(0, 5);
+
+  // If the random word is the same as the previous one, generate a new random index until it's different
+  while (words[randomIndex] == prevWord) {
+    randomIndex = random(0, 5);
+  }
+
+  // Store the displayed word
+  prevWord = words[randomIndex];
+
+  return words[randomIndex];
+}
+
