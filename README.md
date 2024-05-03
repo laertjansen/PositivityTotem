@@ -1,5 +1,7 @@
 The primary goal of this prototype is to bring joy to children and spread happiness through the use of positive words. The device detects motion and displays uplifting phrases on an LCD display, accompanied by a heartbeat animation. Additionally, a small mascot integrated into the device will open the top lid in response to detected motion within a 40 cm range.
 
+See it here: https://www.instagram.com/p/C6gb8gRv1rl/
+
 What you'll need:
 - Arduino Uno
 - LCD 16x2
